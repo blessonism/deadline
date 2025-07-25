@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiSettings, FiMoon, FiSun, FiUser, FiMaximize, FiMinimize, FiEdit, FiSave, FiGlobe } from 'react-icons/fi';
+import { FiMenu, FiX, FiSettings, FiMoon, FiSun, FiUser, FiMaximize, FiMinimize, FiEdit, FiSave, FiGlobe, FiPlus } from 'react-icons/fi';
 import { useTimers } from '../../context/TimerContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import LoginModal from '../UI/LoginModal';
+import TimerTypeModal from '../UI/TimerTypeModal';
 import { HexColorPicker } from 'react-colorful';
 
 export default function Header() {
-  const { timers, activeTimerId, setActiveTimerId, deleteTimer, updateTimer } = useTimers();
+  const { timers, activeTimerId, setActiveTimerId, deleteTimer, updateTimer, addTimer } = useTimers();
   const { theme, toggleTheme, accentColor } = useTheme();
   const { t, changeLanguage, currentLang } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,12 +19,53 @@ export default function Header() {
   const [editingTimer, setEditingTimer] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isTimerTypeModalOpen, setIsTimerTypeModalOpen] = useState(false);
 
   // 打开登录模态框
   const openLoginModal = () => {
     setIsLoginOpen(true);
     if (window.location.hash !== '#login') {
       window.location.hash = 'login';
+    }
+  };
+
+  // 处理计时器类型选择
+  const handleTimerTypeSelect = (type) => {
+    setIsTimerTypeModalOpen(false);
+    
+    // 根据类型创建不同的计时器模板，或重定向到原有组件
+    switch (type) {
+      case 'countdown':
+        // 设置为编辑倒计时 - 使用类似AddTimerModal的默认值，确保日期格式正确
+        const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        setEditingTimer({
+          id: 'new',
+          name: '',
+          type: 'countdown',
+          color: '#0ea5e9',
+          targetDate: tomorrow.toISOString().slice(0, 10),
+          targetTime: '00:00',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
+        setIsManageOpen(true);
+        break;
+      case 'stopwatch':
+        // 设置为编辑秒表
+        setEditingTimer({
+          id: 'new',
+          name: '',
+          type: 'stopwatch',
+          color: '#10B981',
+          isLimitedEdit: true
+        });
+        setIsManageOpen(true);
+        break;
+      case 'worldclock':
+        // 使用hash跳转到worldclock创建页，让主页面的逻辑处理它
+        if (window.location.hash !== '#worldclock') {
+          window.location.hash = 'worldclock';
+        }
+        break;
     }
   };
 
@@ -67,6 +109,52 @@ export default function Header() {
   const saveEditedTimer = () => {
     if (!editingTimer) return;
     
+    // 处理新增计时器
+    if (editingTimer.id === 'new') {
+      try {
+        let timerData;
+        
+        if (editingTimer.type === 'countdown') {
+          // 创建有效的日期对象
+          const targetDateObj = new Date(`${editingTimer.targetDate}T${editingTimer.targetTime || '00:00'}`);
+          
+          // 检查日期是否有效
+          if (isNaN(targetDateObj.getTime())) {
+            console.error('无效的日期:', editingTimer.targetDate, editingTimer.targetTime);
+            return;
+          }
+          
+          timerData = {
+            name: editingTimer.name || '新计时器',
+            targetDate: targetDateObj.toISOString(),
+            color: editingTimer.color,
+            type: 'countdown',
+            timezone: editingTimer.timezone
+          };
+        } else if (editingTimer.type === 'stopwatch') {
+          timerData = {
+            name: editingTimer.name || '新秒表',
+            color: editingTimer.color,
+            type: 'stopwatch',
+            startTime: null,
+            pausedTime: 0,
+            isRunning: false
+          };
+        }
+        // worldclock类型已经移除，由专门组件处理
+        
+        // 调用addTimer函数添加新计时器
+        addTimer(timerData);
+        setEditingTimer(null);
+        setShowColorPicker(false);
+        setIsManageOpen(false);
+      } catch (error) {
+        console.error('创建计时器错误:', error);
+      }
+      return;
+    }
+    
+    // 处理现有计时器的编辑
     if (editingTimer.isLimitedEdit) {
       // 限制编辑模式：只更新名字和颜色
       updateTimer(editingTimer.id, {
@@ -166,6 +254,17 @@ export default function Header() {
               data-umami-event={isFullscreen ? t('header.exitFullscreen') : t('header.fullscreen')}
             >
               {isFullscreen ? <FiMinimize className="text-xl" /> : <FiMaximize className="text-xl" />}
+            </button>
+            
+            {/* 添加计时器按钮 */}
+            <button
+              className="p-2 ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer"
+              onClick={() => {
+                setIsTimerTypeModalOpen(true);
+              }}
+              data-umami-event={t('header.addTimer')}
+            >
+              <FiPlus className="text-xl" />
             </button>
             
             {/* 登录按钮 */}
@@ -269,6 +368,19 @@ export default function Header() {
                 >
                   {theme === 'dark' ? <FiSun className="text-xl" /> : <FiMoon className="text-xl" />}
                   <span className="text-xs ml-2 flex-1 text-right">{t('header.themeToggle')}</span>
+                </button>
+
+                {/* 添加计时器按钮 */}
+                <button
+                  className="flex items-center justify-between p-3 rounded-lg bg-white/10 dark:bg-black/10 backdrop-blur-sm border border-gray-200/60 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-black/20 cursor-pointer transition-colors"
+                  onClick={() => {
+                    setIsTimerTypeModalOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                  data-umami-event={t('timer.create')}
+                >
+                  <FiPlus className="text-xl" />
+                  <span className="text-xs ml-2 flex-1 text-right">{t('timer.create')}</span>
                 </button>
 
                 {/* 第二行 */}
@@ -381,7 +493,12 @@ export default function Header() {
               {editingTimer ? (
                 <div className="space-y-4">
                   <h3 className="font-medium mb-2">
-                    {editingTimer.isLimitedEdit ? t('modal.edit.editTimer') : t('modal.edit.editCountdown')}
+                    {editingTimer.id === 'new' 
+                      ? t('modal.countdown.create', '创建倒计时')
+                      : editingTimer.isLimitedEdit 
+                        ? t('modal.edit.editTimer') 
+                        : t('modal.edit.editCountdown')
+                    }
                   </h3>
                   
                   <div>
@@ -571,6 +688,16 @@ export default function Header() {
               window.location.hash = '';
             }
           }} />
+        )}
+      </AnimatePresence>
+
+      {/* 计时器类型选择弹窗 */}
+      <AnimatePresence>
+        {isTimerTypeModalOpen && (
+          <TimerTypeModal
+            onClose={() => setIsTimerTypeModalOpen(false)}
+            onSelectType={handleTimerTypeSelect}
+          />
         )}
       </AnimatePresence>
     </header>
