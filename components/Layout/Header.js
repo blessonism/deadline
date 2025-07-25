@@ -34,35 +34,19 @@ export default function Header() {
   const handleTimerTypeSelect = (type) => {
     setIsTimerTypeModalOpen(false);
     
-    // 根据类型创建不同的计时器模板，或重定向到原有组件
+    // 根据类型使用hash跳转，让主页面的逻辑处理它
     switch (type) {
       case 'countdown':
-        // 设置为编辑倒计时 - 使用类似AddTimerModal的默认值，确保日期格式正确
-        const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
-        setEditingTimer({
-          id: 'new',
-          name: '',
-          type: 'countdown',
-          color: '#0ea5e9',
-          targetDate: tomorrow.toISOString().slice(0, 10),
-          targetTime: '00:00',
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        });
-        setIsManageOpen(true);
+        if (window.location.hash !== '#countdown') {
+          window.location.hash = 'countdown';
+        }
         break;
       case 'stopwatch':
-        // 设置为编辑秒表
-        setEditingTimer({
-          id: 'new',
-          name: '',
-          type: 'stopwatch',
-          color: '#10B981',
-          isLimitedEdit: true
-        });
-        setIsManageOpen(true);
+        if (window.location.hash !== '#stopwatch') {
+          window.location.hash = 'stopwatch';
+        }
         break;
       case 'worldclock':
-        // 使用hash跳转到worldclock创建页，让主页面的逻辑处理它
         if (window.location.hash !== '#worldclock') {
           window.location.hash = 'worldclock';
         }

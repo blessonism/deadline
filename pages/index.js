@@ -14,7 +14,7 @@ import LoginModal from '../components/UI/LoginModal';
 import { useTimers } from '../context/TimerContext';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { FaPlus, FaShareAlt, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaShareAlt } from 'react-icons/fa';
 import { parseShareUrl } from '../utils/shareUtils';
 
 export default function Home() {
