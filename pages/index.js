@@ -80,7 +80,7 @@ export default function Home() {
     setIsAddModalOpen(false);
     
     // 清除可能的hash
-    if (['#add', '#worldclock'].includes(window.location.hash)) {
+    if (['#add', '#worldclock', '#countdown', '#stopwatch'].includes(window.location.hash)) {
       window.history.replaceState(null, document.title, window.location.pathname);
     }
   };
@@ -134,6 +134,12 @@ export default function Home() {
       }
       if (hash === 'add') {
         setIsTimerTypeModalOpen(true);
+      }
+      if (hash === 'countdown') {
+        setIsCountdownModalOpen(true);
+      }
+      if (hash === 'stopwatch') {
+        setIsStopwatchModalOpen(true);
       }
     };
     
