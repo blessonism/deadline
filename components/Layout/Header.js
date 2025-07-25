@@ -20,6 +20,7 @@ export default function Header() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isTimerTypeModalOpen, setIsTimerTypeModalOpen] = useState(false);
+  const [timerBarHovered, setTimerBarHovered] = useState(false);
 
   // 打开登录模态框
   const openLoginModal = () => {
@@ -210,36 +211,48 @@ export default function Header() {
         </motion.div>
 
         {/* 计时器选择器 - 桌面版 - 居中显示 */}
-        <div className="hidden md:flex justify-center">
-          <div className="flex space-x-4 overflow-x-auto py-2 max-w-md">
-            {/* 移除 AnimatePresence 的 mode="wait" 属性，允许多个子元素同时动画 */}
-            <AnimatePresence>
-              {timers.map(timer => (
-                <motion.button
-                  key={timer.id}
-                  layout
-                  layoutId={`timer-${timer.id}`}
-                  initial={{ opacity: 0.8, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0.8, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className={`px-3 py-1 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
-                    activeTimerId === timer.id 
-                      ? 'text-white' 
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
-                  style={
-                    activeTimerId === timer.id 
-                      ? { backgroundColor: timer.color || '#0ea5e9' } 
-                      : {}
-                  }
-                  onClick={() => setActiveTimerId(timer.id)}
-                  data-umami-event="切换计时器"
-                >
-                  {timer.name}
-                </motion.button>
-              ))}
-            </AnimatePresence>
+        <div 
+          className="hidden md:flex justify-center relative"
+          onMouseEnter={() => setTimerBarHovered(true)}
+          onMouseLeave={() => setTimerBarHovered(false)}
+        >
+          {/* 使用更简单、更高效的方式实现标签显示/隐藏 */}
+          <div 
+            className={`flex py-2 scrollbar-hide transition-transform duration-300 ease-out`}
+            style={{ 
+              maxWidth: '60vw',
+              overflowX: timerBarHovered ? 'auto' : 'visible'
+            }}
+          >
+            {/* 简化动画，使用硬件加速，提高性能 */}
+            {timers.map((timer) => (
+              <motion.button
+                key={timer.id}
+                className={`mx-1 px-3 py-1 rounded-md text-sm font-medium whitespace-nowrap transform-gpu transition-all duration-300 ${
+                  activeTimerId === timer.id 
+                    ? 'text-white' 
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+                style={{
+                  backgroundColor: activeTimerId === timer.id ? (timer.color || '#0ea5e9') : undefined,
+                  opacity: timer.id === activeTimerId || timerBarHovered ? 1 : 0,
+                  transform: timer.id === activeTimerId || timerBarHovered 
+                    ? 'scale(1) translateX(0)' 
+                    : 'scale(0.8) translateX(-10px)',
+                  maxWidth: timer.id === activeTimerId || timerBarHovered ? '200px' : '0px',
+                  overflow: 'hidden',
+                  margin: timer.id === activeTimerId || timerBarHovered ? '0 4px' : '0',
+                  padding: timer.id === activeTimerId || timerBarHovered ? '0.25rem 0.75rem' : '0.25rem 0',
+                  pointerEvents: timer.id === activeTimerId || timerBarHovered ? 'auto' : 'none',
+                  // 添加过渡属性
+                  transition: 'opacity 0.3s ease-out, transform 0.3s ease-out, max-width 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out'
+                }}
+                onClick={() => setActiveTimerId(timer.id)}
+                data-umami-event="切换计时器"
+              >
+                {timer.name}
+              </motion.button>
+            ))}
           </div>
         </div>
 
