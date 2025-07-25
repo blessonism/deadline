@@ -50,14 +50,10 @@ export default function Layout({ children }) {
       
       if (isNearBottom && !showFooter) {
         setShowFooter(true);
-        if (window.location.hash !== '#footer') {
-          window.location.hash = 'footer';
-        }
+        // 移除修改hash的代码
       } else if (!isNearBottom && showFooter) {
         setShowFooter(false);
-        if (window.location.hash === '#footer') {
-          window.location.hash = '';
-        }
+        // 移除修改hash的代码
       }
     };
     
