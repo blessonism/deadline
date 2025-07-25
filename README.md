@@ -4,7 +4,7 @@
 
 TimePulse 是一个具有现代化 UI 和交互的计时器网页应用，支持多计时器管理、数据分享、用户数据同步、全屏展示等功能，可进行倒计时、正计时和显示世界时钟。采用玻璃态设计和流畅动画效果，提供极佳的视觉体验。
 
-预览: [TimePulse](https://timepulse.ravelloh.top/)
+预览: [TimePulse](https://time.sukisq.me/)
 
 ![image](https://raw.ravelloh.top/20250323/image.2obow0upmh.webp)
 ![image](https://raw.ravelloh.top/20250323/image.7zqlgqhqss.webp)
