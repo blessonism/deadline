@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v4';
 const CACHE_NAME = `timepulse-${CACHE_VERSION}`;
 
 // 修改缓存资源列表，只包含确定存在的文件
@@ -273,6 +273,36 @@ async function checkForUpdatesAndNotify(isInitialLoad = false) {
     const cache = await caches.open(CACHE_NAME);
     console.log(isInitialLoad ? '页面加载时检查更新...' : '检查更新...');
     
+    // 如果是初次加载，不发送更新通知，只更新缓存
+    if (isInitialLoad) {
+      await Promise.allSettled(
+        urlsToCache.map(async url => {
+          try {
+            const networkResponse = await fetch(url, { cache: 'no-cache' });
+            if (!networkResponse || !networkResponse.ok) return;
+            await cache.put(url, networkResponse.clone());
+          } catch (error) {
+            console.log(`初始加载时缓存 ${url} 失败:`, error);
+          }
+        })
+      );
+      
+      // 通知客户端缓存已初始化
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          action: 'cacheChecked',
+          timestamp: Date.now(),
+          hasUpdates: false,
+          isInitialLoad: true
+        });
+      });
+      
+      console.log('初始缓存已完成');
+      return;
+    }
+    
+    // 如果不是初次加载，检查是否有更新
     const updateResults = await Promise.allSettled(
       urlsToCache.map(async url => {
         try {
@@ -337,7 +367,8 @@ async function checkForUpdatesAndNotify(isInitialLoad = false) {
         timestamp: Date.now(),
         hasUpdates: hasUpdates,
         updatedUrls: updatedUrls,
-        isInitialLoad: isInitialLoad
+        isInitialLoad: false,
+        cacheVersion: CACHE_VERSION
       });
     });
     

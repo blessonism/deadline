@@ -12,8 +12,20 @@ export default function UpdateToast() {
     const handleCacheUpdated = (event) => {
       // 检查是否真的有更新
       if (event.detail.hasUpdates) {
-        setShowToast(true);
-        console.log('检测到应用更新，建议刷新页面');
+        // 获取上次更新的时间戳
+        const lastUpdateTimestamp = localStorage.getItem('lastUpdateNotification');
+        const currentTimestamp = event.detail.timestamp;
+        
+        // 如果没有记录过更新，或者当前更新比上次更新晚30分钟以上，才显示提示
+        if (!lastUpdateTimestamp || (currentTimestamp - parseInt(lastUpdateTimestamp) > 30 * 60 * 1000)) {
+          setShowToast(true);
+          console.log('检测到应用更新，建议刷新页面');
+          
+          // 记录当前更新时间戳
+          localStorage.setItem('lastUpdateNotification', currentTimestamp.toString());
+        } else {
+          console.log('更新提示已在近期显示过，跳过显示');
+        }
       }
     };
 
@@ -25,11 +37,15 @@ export default function UpdateToast() {
     setIsRefreshing(true);
     // 延迟一点时间显示刷新动画，然后刷新页面
     setTimeout(() => {
+      // 刷新前记录已处理此更新
+      localStorage.setItem('updateHandled', 'true');
       window.location.reload();
     }, 500);
   };
 
   const handleDismiss = () => {
+    // 点击稍后时也记录已处理此更新
+    localStorage.setItem('updateHandled', 'true');
     setShowToast(false);
   };
 

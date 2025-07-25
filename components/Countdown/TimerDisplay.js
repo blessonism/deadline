@@ -384,12 +384,13 @@ export default function TimerDisplay() {
     >
       {/* 计时器名称 */}
       <motion.h2 
-        className="text-xl sm:text-2xl md:text-3xl font-medium mb-4"
+        className="text-xl sm:text-2xl md:text-3xl font-bold mb-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         style={{ 
           color: activeTimer.color,
+          letterSpacing: '0.05em', // 增加字符间距
           transition: 'color 0.3s var(--transition-timing)'
         }}
       >

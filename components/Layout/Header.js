@@ -135,7 +135,7 @@ export default function Header() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0.8, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`px-3 py-1 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
                     activeTimerId === timer.id 
                       ? 'text-white' 
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -313,7 +313,7 @@ export default function Header() {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.2 }}
-                      className={`px-4 py-2 rounded-lg text-left ${
+                      className={`px-4 py-2 rounded-md text-left ${
                         activeTimerId === timer.id 
                           ? 'text-white' 
                           : 'bg-white/10 dark:bg-black/10 backdrop-blur-sm border border-gray-200/60 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/20 dark:hover:bg-black/20'
