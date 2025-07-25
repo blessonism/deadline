@@ -172,7 +172,7 @@ const getDefaultTimer = () => {
   
   return {
     id: 'default',
-    name: '距离下班时间',
+    name: '距离下班时间还有',
     targetDate: todayAt1830.toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     color: '#1890FF',
