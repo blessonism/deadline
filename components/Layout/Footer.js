@@ -188,7 +188,7 @@ export default function Footer() {
         
         <div className="mt-3 md:mt-4 pt-2 border-t border-gray-300 dark:border-white/10 text-center text-xs text-gray-600 dark:text-gray-300">
           <p>
-            © {new Date().getFullYear()} <a className="underline" href="https://example.invalid/">TimePulse</a> by <a className="underline" href="https://ravelloh.top/">RavelloH</a>. {t('footer.builtWith', '使用 Next.js 和 Framer Motion 构建')}。
+            © {new Date().getFullYear()} <a className="underline" href="/">TimePulse</a> by <a className="underline" href="https://ravelloh.top/">RavelloH</a>. {t('footer.builtWith', '使用 Next.js 和 Framer Motion 构建')}。
           </p>
         </div>
       </div>
